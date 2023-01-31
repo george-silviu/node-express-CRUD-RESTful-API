@@ -1,0 +1,39 @@
+Explain how the app works and the different concepts that were used to learn faster.
+
+    EXPRESS
+* routes
+* chaining routes (next())
+
+    MIDDLEWARE
+What is middelware?
+Anything between the request and the response.
+
+* serve public static files
+* middleware (custom, built-in, 3rd parties)
+* CORS
+* request logs
+* errors logs
+* app.use
+* app.all
+
+    ROUTING
+* purpose =  breaking the multiple routes from server into individual routers
+* REST API 
+    - created the /routes/api/users.js do demonstrate how REST API can be created with NodeJS and Express
+    - on this routes we dont't need static files because we respond with json data from API
+
+    MVC REST API
+* we wont serve static files when creating a REST API - view directory will contain mostly 1-2 views
+* the purpose of MVC is to separate the logic into multiple files, each of it handling specific task
+* data is kept in the model folder
+* controllers folder handles bussiness logic
+
+//creating /users route to demonstrate how we can use Express to create a REST API. 
+It is likely to use Express for this purpose rather than serve static files as we do in the previous routes
+
+
+CORS
+//use this middleware when you want your API to be fully available to the public
+app.use(cors());
+//BUT if you want to protect your API from specific origins, create allowed origins and provide it as cors options
+app.use(cors(corsOptions));
