@@ -20,12 +20,14 @@ app.use(express.urlencoded({ extended: false }));
 //built-in middleware for json parsing
 app.use(express.json());
 
-//built-in middleware to serve public files
+//built-in middleware to serve public static files
 app.use(express.static(path.join(__dirname + "/public")));
 
+//routes
 app.use("/", require("./routes/root"));
-
-app.use("/users", require("./routes/api/users"));
+app.use("/employees", require("./routes/api/employees"));
+app.use("/register", require("./routes/register"));
+app.use("/login", require("./routes/auth"));
 
 //serving the 404 with app.all
 app.all("*", (req, res) => {

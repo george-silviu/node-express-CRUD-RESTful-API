@@ -1,12 +1,10 @@
 [
   {
-    "id": 1,
-    "username": "einsteinAlbert",
-    "password": "relativityRocks"
+    "username": "warap1",
+    "password": "$2b$10$9.Z56H2qVMwQUJcAw9iRu.1FFpLuXjrYRXdQPQc8VOAckPGOTpQmC"
   },
   {
-    "id": 2,
-    "username": "hawkingStephen",
-    "password": "blackHoleRadiation01"
+    "username": "walter1",
+    "password": "$2b$10$50uPlkroRJTp9FypnmBtzuBpZrQ/gg.1HxXI2ovSLBjsp80sB9SNG"
   }
 ]
