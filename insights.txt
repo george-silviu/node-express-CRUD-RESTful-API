@@ -37,3 +37,45 @@ CORS
 app.use(cors());
 //BUT if you want to protect your API from specific origins, create allowed origins and provide it as cors options
 app.use(cors(corsOptions));
+
+MVC Rest API
+
+
+
+
+We want to protect ourNode and Express API so we use JWT.
+
+JWT - json web token = a form of user identification that is issued after the initial user authentication takes place
+
+Access token 
+- shorter period expiration 5-15 min
+- send as JSON
+- client stores it in memory (is lost when client is lost)
+- Do NOT store in local storage or cookie (store in the current application state) - if it can be stored with JS a hacker could retrieve it with J
+
+1. Issued at Authorization
+2. Client uses for API Acces until expires
+3. Verified with middleware
+4. New token issued at Refresh request
+
+
+
+Refresh token
+- longer period expiration 1d-?days
+- sent as httpOnly cookie
+- not accesible via JavaScript
+- must have expiration date
+
+1. Issued at Authorization 
+2. Client uses to request new Access token
+3. Verified with endpoint and database
+4. Must be allowed to expire or logout
+
+
+Hazards:
+XSS: Cross-Site Scripting
+CSRF: CS Request Forgery
+
+
+
+
