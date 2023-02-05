@@ -4,6 +4,7 @@ const app = express();
 const path = require("path");
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
+const verifyJWT = require("./middleware/verifyJWT");
 const { logger } = require("./middleware/logEvents");
 const { errorHandler } = require("./middleware/errorHandler");
 const PORT = process.env.PORT || 3663;
@@ -25,9 +26,13 @@ app.use(express.static(path.join(__dirname + "/public")));
 
 //routes
 app.use("/", require("./routes/root"));
-app.use("/employees", require("./routes/api/employees"));
+
 app.use("/register", require("./routes/register"));
 app.use("/login", require("./routes/auth"));
+
+app.use(verifyJWT);
+
+app.use("/employees", require("./routes/api/employees"));
 
 //serving the 404 with app.all
 app.all("*", (req, res) => {

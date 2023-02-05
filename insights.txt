@@ -51,14 +51,12 @@ Access token
 - shorter period expiration 5-15 min
 - send as JSON
 - client stores it in memory (is lost when client is lost)
-- Do NOT store in local storage or cookie (store in the current application state) - if it can be stored with JS a hacker could retrieve it with J
+- Do NOT store in local storage or cookie (store in the current application state) - if it can be stored with JS a hacker could retrieve it with JS
 
 1. Issued at Authorization
-2. Client uses for API Acces until expires
+2. Client uses for API Access until expires
 3. Verified with middleware
 4. New token issued at Refresh request
-
-
 
 Refresh token
 - longer period expiration 1d-?days
@@ -70,7 +68,6 @@ Refresh token
 2. Client uses to request new Access token
 3. Verified with endpoint and database
 4. Must be allowed to expire or logout
-
 
 Hazards:
 XSS: Cross-Site Scripting
