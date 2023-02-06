@@ -6,13 +6,25 @@ const router = express.Router();
 //importing the usersControlles functions
 const employeesControllers = require("../../controllers/employeesController");
 
+//import roles list
+const ROLES_LIST = require("../../config/roles_list");
+
+//import middleware that verifies the role of user making the request
+const verifyRoles = require("../../middleware/verifyRoles");
+
 //this  router is created to demonstrate how a CRUD operations would look
 router
   .route("/")
   .get(employeesControllers.getAllEmployees)
-  .post(employeesControllers.createNewEmployee)
-  .put(employeesControllers.updateEmployee)
-  .delete(employeesControllers.deleteEmployee);
+  .post(
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    employeesControllers.createNewEmployee
+  )
+  .put(
+    verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
+    employeesControllers.updateEmployee
+  )
+  .delete(verifyRoles(ROLES_LIST.Admin), employeesControllers.deleteEmployee);
 
 //get an employee by id
 router.route("/:id").get(employeesControllers.getEmployee);

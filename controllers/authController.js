@@ -1,15 +1,6 @@
-const usersDB = {
-  users: require("../model/users.json"),
-  setUsers: function (data) {
-    this.users = data;
-  },
-};
-
+const User = require("../model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
-const fsPromises = require("fs").promises;
-const path = require("path");
 
 const handleLogin = async (req, res) => {
   //destructure the body parameters
@@ -20,8 +11,8 @@ const handleLogin = async (req, res) => {
     return res.status(400).json({ message: "user and password are required" });
   }
 
-  //find the user that sends the request
-  const foundUser = usersDB.users.find((person) => person.username === user);
+  //find the user that sends the request in db
+  const foundUser = await User.findOne({ username: user }).exec();
 
   if (!foundUser) {
     return res.sendStatus(401); //Unauthorized
@@ -35,13 +26,17 @@ const handleLogin = async (req, res) => {
       return res.sendStatus(401); //Unauthorized
     }
 
+    //get the roles values codes inside the roles variable
+    const roles = Object.values(foundUser.roles);
+
     //create JWTs
     //generate user accessToken
     //dont pass passwords in token payload
+    //we also store user role codes with the payload
     const accessToken = jwt.sign(
-      { username: foundUser.username },
+      { UserInfo: { username: foundUser.username, roles: roles } },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30s" }
+      { expiresIn: "5min" }
     );
 
     //generate user refreshToken
@@ -52,27 +47,14 @@ const handleLogin = async (req, res) => {
     );
 
     //save refresh token with current user in database that will help us to create a logout route and invalidate the token
+    foundUser.refreshToken = refreshToken;
+    const result = await foundUser.save();
+    console.log(result);
 
-    //1. filer all users that are not logging in
-    const otherUsers = usersDB.users.filter(
-      (person) => person.username !== foundUser.username
-    );
-
-    //2. add the refresh token to current user
-    const currentUser = { ...foundUser, refreshToken };
-
-    //3. create the new users array
-    usersDB.setUsers([...otherUsers, currentUser]);
-
-    //4. update the new users file
-    await fsPromises.writeFile(
-      path.join(__dirname, "..", "model", "users.json"),
-      JSON.stringify(usersDB.users)
-    );
-
-    //send the refreshToken as a httpOnly cookie - not available to JS
     res.cookie("jwt", refreshToken, {
-      httpOnly: true,
+      httpOnly: true, //send the refreshToken as a httpOnly cookie - not available to JS
+      sameSite: "None", //enable requests from domains with other address than server address
+      //secure: true, //secure : true - only serves on https !when working with POSTMAN or other rest api request service this option must be commented; It should be uncommented when working with chrome or in production
       maxAge: 24 * 60 * 60 * 1000, //1 day in ms
     });
 

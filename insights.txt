@@ -41,8 +41,6 @@ app.use(cors(corsOptions));
 MVC Rest API
 
 
-
-
 We want to protect ourNode and Express API so we use JWT.
 
 JWT - json web token = a form of user identification that is issued after the initial user authentication takes place
@@ -74,5 +72,47 @@ XSS: Cross-Site Scripting
 CSRF: CS Request Forgery
 
 
+Authentication = the process of verifiyng who someone is.
+Authorization = the process of verifiyng what resources a user has access to.
 
+JSON Web tokens:
+-> Confirm authorizarion
+-> Allow access to API endpoints
+-> Endpoints provide data resources
+-> Use Authorization header
 
+User roles & Permissions
+-> provide different levels of access
+-> sent in access token via payload
+-> verified with middleware
+
+MongoDB
+ - is the "M" in the M(Mongo) E(Express) R(React) N(NodeJS) stack
+ 
+* Traditional SQL databases are built in relational structure; related tables refference each other with joins as data is queried. This relational tables also normalize the data (D.R.Y), that means data is not duplicated in the table.
+
+* With NoSQL databases like MongoDB relational tables and data normalization can be ignored.
+
+MongoDB stores data in collections and individual records in collections are called documents. The documents have a key-value structure and look a lot like JSON. A collection holds all the data about a user, for example instead into breaking the data into related tables. Duplicating and distributing the data when neccessary is permitted in NoSQL databases.
+
+example:
+{
+    _id: ObjectId("6168381e46424"),
+    username: "silviu",
+    password: "d12u38169#$&@hfdpwa",
+    roles:{
+        User: 2001,
+        Editor: 1984
+    },
+    refreshToken: "dw8ydf98yd*&t^9ODGWQ98uhg"
+}
+
+Advantages:
+-> Performance
+-> Flexibility
+-> Scalability
+-> Usability
+
+MongooseJs library to connect to db.
+
+Mongoose Schemas and Data models.

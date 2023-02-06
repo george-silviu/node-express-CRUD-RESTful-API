@@ -1,106 +1,108 @@
 //in user controller we handle the busines logic
+const Employee = require("../model/Employee");
 
-const data = {
-  employees: require("../model/employees.json"),
-  setEmployees: function (data) {
-    this.employees = data;
-  },
-};
+const getAllEmployees = async (req, res) => {
+  //get all employees from db
+  const employees = await Employee.find();
 
-const getAllEmployees = (req, res) => {
-  res.json(data.employees);
-};
-
-const createNewEmployee = (req, res) => {
-  //map a new user data object
-  const newUser = {
-    id: data.employees[data.employees.length - 1].id + 1 || 1,
-    username: req.body.username,
-    password: req.body.password,
-  };
-
-  //check to see if username and password were provided
-  if (!newUser.username || !newUser.password) {
-    return res
-      .status(400)
-      .json({ message: "username and password are required." });
+  //if no employees respond with 204 - No content
+  if (!employees) {
+    return res.status(204).json({ message: "No employees found." });
   }
 
-  //add the newUser to the data json
-  data.setEmployees([...data.employees, newUser]);
-
-  //return response with 201 status and all employees
-  res.status(201).json(data.employees);
+  //respond with employees
+  res.json(employees);
 };
 
-const updateEmployee = (req, res) => {
-  //extract the user with the id specified in the request
-  const user = data.employees.find((user) => user.id === parseInt(req.body.id));
-
-  //if no user found send bad request message
-  if (!user) {
+const createNewEmployee = async (req, res) => {
+  //check if the first and last name are sent with request
+  if (!req?.body.firstname || !req.body.lastname) {
     return res
       .status(400)
-      .json({ message: `User ID: ${req.body.id} not found.` });
+      .json({ message: "First and last name are required." });
   }
+  try {
+    //create new employee in db
+    const result = await Employee.create({
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+    });
 
-  //if username and password were sent in the req body change the values in data json
-  if (req.body.username) user.username = req.body.username;
-  if (req.body.password) user.password = req.body.password;
-
-  //we filter all employees and keep all, minus the one extracted earlier
-  const filteredemployees = data.employees.filter(
-    (user) => user.id !== parseInt(req.body.id)
-  );
-
-  //we add the newly updated user in an unsorted array
-  const unsortedemployees = [...filteredemployees, user];
-
-  //we update the employees data json and sort in asc order
-  data.setEmployees(
-    unsortedemployees.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0))
-  );
-
-  //sending the employees json as a response
-  res.json(data.employees);
+    //send the result with the new employee created
+    res.status(201).json(result);
+  } catch (err) {
+    console.error(err);
+  }
 };
 
-const deleteEmployee = (req, res) => {
-  //extract the user with the id specified in the request
-  const user = data.employees.find((user) => user.id === parseInt(req.body.id));
-
-  //if no user found send bad request message
-  if (!user) {
-    return res
-      .status(400)
-      .json({ message: `User ID: ${req.body.id} not found.` });
+const updateEmployee = async (req, res) => {
+  //check to see if the employee id that we want to update is sent
+  if (!req?.body.id) {
+    res.status(400).jon({ message: "ID parameter is required." });
   }
-  //we filter all employees and keep all, minus the one extracted earlier
-  const filteredemployees = data.employees.filter(
-    (user) => user.id !== parseInt(req.body.id)
-  );
 
-  //update the employees json with the filtered array
-  data.setEmployees([...filteredemployees]);
+  //find an employee with the provided id
+  const employee = await Employee.findOne({ _id: req.body.id }).exec();
 
-  //sending the employees json as a response
-  res.json(data.employees);
+  //if no employee found send response 204
+  if (!employee) {
+    return res
+      .status(204) //Successs but No content
+      .json({ message: `No employee matches ID ${req.body.id}.` });
+  }
+
+  //if firstname and lastname were sent in the req body change the values in the user data found in db
+  if (req.body?.firstname) employee.firstname = req.body.firstname;
+  if (req.body?.lastname) employee.lastname = req.body.lastname;
+
+  //save the new employee data in database
+  const result = await employee.save();
+
+  //sending the query result to the client
+  res.json(result);
 };
 
-const getEmployee = (req, res) => {
-  //extract the user with the id specified in the request
-  const user = data.employees.find(
-    (user) => user.id === parseInt(req.params.id)
-  );
-
-  //if no user found send bad request message
-  if (!user) {
-    return res
-      .status(400)
-      .json({ message: `User ID: ${req.params.id} not found.` });
+const deleteEmployee = async (req, res) => {
+  //check to see if the employee id that we want to update is sent
+  if (!req?.body.id) {
+    res.status(400).jon({ message: "ID parameter is required." });
   }
-  //sending the extracted user as response
-  res.json(user);
+
+  //find the user with the id specified in the request in db
+  const employee = await Employee.findOne({ _id: req.body.id }).exec();
+
+  //if no employee found send response 204
+  if (!employee) {
+    return res
+      .status(204) //Successs but No content
+      .json({ message: `No employee matches ID ${req.body.id}.` });
+  }
+
+  //delete the employee with sent id
+  const result = await Employee.deleteOne({ _id: req.body.id });
+
+  //sending the result to the client
+  res.json(result);
+};
+
+const getEmployee = async (req, res) => {
+  //check to see if the employee id that we want to update is sent as parameter
+  if (!req?.params?.id) {
+    res.status(400).jon({ message: "ID parameter is required." });
+  }
+
+  //find the employee with the id specified in the request in db
+  const employee = await Employee.findOne({ _id: req.params.id }).exec();
+
+  //if no employee found send response 204
+  if (!employee) {
+    return res
+      .status(204) //Successs but No content
+      .json({ message: `No employee matches ID ${req.params.id}.` });
+  }
+
+  //sending the employee back to the client
+  res.json(employee);
 };
 
 module.exports = {

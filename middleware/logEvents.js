@@ -14,7 +14,7 @@ const logEvents = async (message, logName) => {
   const logItem = `${dateTime}\t${uuid()}\t${message}\n`;
 
   //log the event
-  console.log(logItem);
+  console.log(message);
   try {
     //create a new logs directory if not exists
     if (!fs.existsSync(path.join(__dirname, "..", "logs"))) {

@@ -1,14 +1,5 @@
 //register controller is the place where a request for registering a new account will reach
-
-const usersDB = {
-  users: require("../model/users.json"),
-  setUsers: function (data) {
-    this.users = data;
-  },
-};
-
-const fsPromises = require("fs").promises;
-const path = require("path");
+const User = require("../model/User");
 const bcrypt = require("bcrypt");
 
 const handleNewUser = async (req, res) => {
@@ -21,7 +12,8 @@ const handleNewUser = async (req, res) => {
   }
 
   //check for duplicate username in database
-  const duplicate = usersDB.users.find((person) => person.username === user);
+  //put .exec() at the end on the query only when using async-await
+  const duplicate = await User.findOne({ username: user }).exec();
 
   //return response 409 - conflict
   if (duplicate) return res.sendStatus(409);
@@ -30,23 +22,13 @@ const handleNewUser = async (req, res) => {
     //encrypt the password - hash and salt(10 rounds) the password
     const hashedPwd = await bcrypt.hash(pwd, 10);
 
-    //store the new user
-    const newUser = {
+    //create and store the new user in database
+    const result = await User.create({
       username: user,
       password: hashedPwd,
-    };
+    });
 
-    //add the new user in simulated db
-    usersDB.setUsers([...usersDB.users, newUser]);
-
-    //overwrite with new data the json file
-    await fsPromises.writeFile(
-      path.join(__dirname, "..", "model", "users.json"),
-      JSON.stringify(usersDB.users)
-    );
-
-    //log all the data
-    console.log(usersDB.users);
+    console.log(result);
 
     //send response with status 201 - created
     res.status(201).json({ success: `New user ${user} created.` });
